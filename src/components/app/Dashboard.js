@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { StaticQuery, graphql } from "gatsby"
 import { Button, Modal } from 'react-bootstrap';
+import MarkDownViewer from '../MarkDownViewer';
 
 const PostRow = ({post }) =>{
 
@@ -11,20 +12,20 @@ const PostRow = ({post }) =>{
 
     return (
       <tr>
-          <pre>
-        { JSON.stringify(post, null, 2) }
-      </pre>
+
         <td>{post.node.Title}</td>
         <td>NO</td>
         <td>
           <Button variant="primary" onClick={handleShow}>
             Evaluar
           </Button>
-          <Modal show={show} onHide={handleClose}>
+          <Modal show={show} onHide={handleClose} size="lg">
             <Modal.Header closeButton>
               <Modal.Title>{post.node.Title}</Modal.Title>
             </Modal.Header>
-            <Modal.Body>{post.node.Story}</Modal.Body>
+            <Modal.Body>
+              <MarkDownViewer content={post.node.Story} />
+            </Modal.Body>
             <Modal.Footer>
               <Button variant="primary" onClick={handleClose}>
                 Guardar
