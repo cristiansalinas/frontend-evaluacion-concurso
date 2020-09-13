@@ -20,7 +20,9 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-helmet": "^6.0.0",
-    "tailwindcss": "^1.4.6"
+    "tailwindcss": "^1.4.6",
+    "react-bootstrap": "^1.3.0",
+    "bootstrap": "^4.5.2"
   },
   "devDependencies": {
     "prettier": "2.0.5"

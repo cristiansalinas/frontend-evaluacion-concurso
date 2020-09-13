@@ -1,18 +1,40 @@
-import React from 'react'
+import React, { useState } from "react"
 import { StaticQuery, graphql } from "gatsby"
+import { Button, Modal } from 'react-bootstrap';
 
-class PostRow extends React.Component {
-  render() {
-    const post = this.props.post;
+const PostRow = ({post }) =>{
+
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     return (
       <tr>
+          <pre>
+        { JSON.stringify(post, null, 2) }
+      </pre>
         <td>{post.node.Title}</td>
         <td>NO</td>
-        <td>Evaluar</td>
+        <td>
+          <Button variant="primary" onClick={handleShow}>
+            Evaluar
+          </Button>
+          <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>{post.node.Title}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{post.node.Story}</Modal.Body>
+            <Modal.Footer>
+              <Button variant="primary" onClick={handleClose}>
+                Guardar
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </td>
       </tr>
     );
-  }
+
 }
 
 class PostTable extends React.Component {
@@ -22,8 +44,7 @@ class PostTable extends React.Component {
     this.props.posts.forEach((post) => {
       rows.push(
         <PostRow
-          post={post}
-          key={post.strapiID} />
+          post={post} />
       );
     });
 
