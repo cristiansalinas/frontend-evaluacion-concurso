@@ -2,6 +2,27 @@ import React, { useState } from "react"
 import { StaticQuery, graphql } from "gatsby"
 import { Button, Modal } from 'react-bootstrap';
 import MarkDownViewer from '../MarkDownViewer';
+import ReactAudioPlayer from 'react-audio-player'
+
+
+const RenderModalBody = ({post}) => {
+  if('Music' === post.node.Category){
+    const file = process.env.GATSBY_API_URL+post.node.Song[0].url;
+
+    return(
+      <ReactAudioPlayer
+        src={file}
+        autoPlay
+        controls
+      />
+    );
+  }else {
+    return (
+      <MarkDownViewer content={post.node.Story} />
+    );
+  }
+
+};
 
 const PostRow = ({post }) =>{
 
@@ -12,7 +33,6 @@ const PostRow = ({post }) =>{
 
     return (
       <tr>
-
         <td>{post.node.Title}</td>
         <td>NO</td>
         <td>
@@ -24,7 +44,7 @@ const PostRow = ({post }) =>{
               <Modal.Title>{post.node.Title}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <MarkDownViewer content={post.node.Story} />
+             <RenderModalBody post={post} />
             </Modal.Body>
             <Modal.Footer>
               <Button variant="primary" onClick={handleClose}>
@@ -45,6 +65,7 @@ class PostTable extends React.Component {
     this.props.posts.forEach((post) => {
       rows.push(
         <PostRow
+          key={post.node.strapiId}
           post={post} />
       );
     });
