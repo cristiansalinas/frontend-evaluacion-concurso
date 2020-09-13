@@ -3,7 +3,7 @@ import { navigate } from 'gatsby'
 import useAuth from '../hooks/useAuth'
 
 const Login = ({ redirect }) => {
-  const { state, login } = useAuth()
+  const { login } = useAuth()
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')

@@ -6,7 +6,7 @@ import Dashboard from "../components/app/Dashboard"
 import useAuth from "../hooks/useAuth"
 
 const App = ({ location }) => {
-  const { state, isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuth()
   const redirect = location.pathname.split('/').pop()
   useEffect(() => {
     if (!isAuthenticated) {
