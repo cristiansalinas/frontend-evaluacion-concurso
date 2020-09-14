@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Button, Modal } from 'react-bootstrap';
+import { Button, Modal, Card, Form } from 'react-bootstrap';
 import MarkDownViewer from '../MarkDownViewer';
 import ReactAudioPlayer from 'react-audio-player';
 import StarRatingComponent from 'react-star-rating-component';
@@ -18,6 +18,91 @@ const getMusicalReview = (id, post) => {
   }
   return {};
 }
+const RenderComment = ({comment, refresh}) => {
+  const deleteComment = () => {
+    let path = process.env.GATSBY_API_URL + "/comments/"+comment.id;
+    fetch(path, {
+      method: 'DELETE',
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+      .catch(error => console.error('Error:', error))
+      .then(response => {
+        refresh();
+      });
+    refresh();
+  }
+  return(
+    <Card>
+      <Card.Body>
+        <Card.Text>
+          {comment.content}
+        </Card.Text>
+        <Button variant="danger" onClick={deleteComment}>Quitar</Button>
+      </Card.Body>
+    </Card>
+  );
+}
+const RenderComments = ({post}) => {
+  const { state } = useAuth();
+  let path = process.env.GATSBY_API_URL + "/comments?user="+state.user.id+"&post="+post.id;
+  const [comments, setComments] = useState([]);
+  const fetchData = () => {
+    fetch(path)
+      .then(response => response.json()) // parse JSON from request
+      .then(resultData => {
+        setComments(resultData);
+      })
+  }
+  useEffect(() => fetchData() , []);
+  const [text, setText] = useState("");
+  const handleSubmit = (evt) => {
+    const payload = {post: post.id, user: state.user.id, content: text};
+    evt.preventDefault();
+    let path = process.env.GATSBY_API_URL + "/comments"
+    let action = 'POST';
+    fetch(path, {
+      method: action,
+      body: JSON.stringify(payload),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+      .catch(error => console.error('Error:', error))
+      .then(response => {
+        fetchData();
+      });
+  }
+
+  let items = []
+  for (const comment of comments) {
+
+    items.push(
+      <RenderComment key={comment.id} comment={comment} refresh={fetchData} />
+    )
+  }
+  return (
+    <>
+      <h2>Comentarios</h2>
+      {items}
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="exampleForm.ControlTextarea1">
+          <Form.Label>Comentario</Form.Label>
+          <Form.Control as="textarea" rows="3"
+                        value={text}
+                        onChange={e => setText(e.target.value)}
+          />
+        </Form.Group>
+        <Button variant="primary" type="submit">
+          Enviar
+        </Button>
+      </Form>
+    </>
+  )
+
+}
+
 const RenderModalBody = ({post, review, refresh}) => {
   const [ratingLiterature, setRatingLiterature] = useState(review.rating || 0);
   const [ratingMusic, setRatingMusic] = useState({
@@ -193,6 +278,7 @@ const RenderModalBody = ({post, review, refresh}) => {
 
           </tbody>
         </table>
+        <RenderComments post={post} />
       </div>
     );
   }else {
@@ -208,6 +294,7 @@ const RenderModalBody = ({post, review, refresh}) => {
           value={ratingLiterature}
           onStarClick={onLiteratureStarClick}
         />
+        <RenderComments post={post} />
       </div>
     );
   }
@@ -240,7 +327,7 @@ const PostRow = ({post , refresh}) =>{
             <Modal.Header closeButton>
               <Modal.Title>{post.title}</Modal.Title>
             </Modal.Header>
-            <Modal.Body style={{'max-height': 'calc(100vh - 210px)', 'overflow-y': 'auto'}}>
+            <Modal.Body style={{'maxHeight': 'calc(100vh - 210px)', 'overflowY': 'auto'}}>
              <RenderModalBody post={post} review={review} refresh={refresh} />
             </Modal.Body>
             <Modal.Footer>
