@@ -20,7 +20,7 @@ const getMusicalReview = (id, post) => {
 }
 const RenderModalBody = ({post, review}) => {
 
-  const [ratingLiterature, setRatingLiterature] = useState(review || 0);
+  const [ratingLiterature, setRatingLiterature] = useState(review.rating || 0);
   const [ratingMusic, setRatingMusic] = useState({
     rating1: review.rating1 || 0,
     rating2: review.rating2 || 0,
@@ -30,7 +30,7 @@ const RenderModalBody = ({post, review}) => {
     rating6: review.rating6 || 0,
     rating7: review.rating7 || 0,
   });
-  const { state } = useAuth()
+  const { state } = useAuth();
 
   const onLiteratureStarClick = (nextValue, prevValue, name)  => {
 
@@ -105,7 +105,7 @@ const RenderModalBody = ({post, review}) => {
           </thead>
           <tbody>
           <tr>
-            <td>Técnica Vocal</td>
+            <td>Técnica Vocal e Instrumental</td>
             <td>
               <StarRatingComponent
                 name="rating1"
@@ -116,7 +116,7 @@ const RenderModalBody = ({post, review}) => {
             </td>
           </tr>
           <tr>
-            <td>Técnica Instrumental</td>
+            <td>Originalidad</td>
             <td>
               <StarRatingComponent
                 name="rating2"
@@ -148,6 +148,9 @@ const RenderModalBody = ({post, review}) => {
               />
             </td>
           </tr>
+
+
+          {post.instrumental == null &&
           <tr>
             <td>Letra</td>
             <td>
@@ -159,6 +162,7 @@ const RenderModalBody = ({post, review}) => {
               />
             </td>
           </tr>
+          }
           <tr>
             <td>Interpretación</td>
             <td>
@@ -205,12 +209,13 @@ const RenderModalBody = ({post, review}) => {
 
 };
 
-const PostRow = ({post }) =>{
+const PostRow = ({post , refresh}) =>{
 
     const [show, setShow] = useState(false);
 
     const handleClose = () => {
       setShow(false);
+      refresh();
     }
     const handleShow = () => setShow(true);
 
@@ -252,6 +257,7 @@ class PostTable extends React.Component {
     this.props.posts.forEach((post) => {
       rows.push(
         <PostRow
+          refresh={this.props.refresh}
           key={post.id}
           post={post} />
       );
@@ -272,22 +278,13 @@ class PostTable extends React.Component {
   }
 }
 
-class SearchBar extends React.Component {
-  render() {
-    return (
-      <form>
-        <input type="text" placeholder="Buscar..." />
-      </form>
-    );
-  }
-}
 
 class FilterablePostTable extends React.Component {
   render() {
     return (
       <div>
-        <SearchBar />
-        <PostTable posts={this.props.posts} />
+
+        <PostTable posts={this.props.posts} refresh={this.props.refresh} />
       </div>
     );
   }
@@ -296,16 +293,20 @@ class FilterablePostTable extends React.Component {
 
 
 const Dashboard = ({ children }) => {
-  const [posts, setPosts] = useState([]);
-  const path = process.env.GATSBY_API_URL + "/posts"
 
-  useEffect(() => {
-    fetch(path)
-      .then(response => response.json()) // parse JSON from request
-      .then(resultData => {
-        setPosts(resultData);
-      })
-  }, []);
+  const [posts, setPosts] = useState([]);
+  const { state } = useAuth();
+  let path = process.env.GATSBY_API_URL + "/posts"
+  if(state && state.user.category === 'literatura') path = path + '?category=literatura';
+  if(state && state.user.category === 'musica') path = path + '?category=musica';
+  const fetchData = () => {
+      fetch(path)
+        .then(response => response.json()) // parse JSON from request
+        .then(resultData => {
+          setPosts(resultData);
+        })
+  }
+  useEffect(() => fetchData() , []);
 
   return (
     <>
@@ -313,7 +314,7 @@ const Dashboard = ({ children }) => {
       <p>Listado de trabajos en competencia</p>
       <div className="uk-section">
         <div className="uk-container uk-container-large">
-          <FilterablePostTable posts={posts}/>
+          <FilterablePostTable posts={posts} refresh={fetchData}/>
         </div>
       </div>
     </>

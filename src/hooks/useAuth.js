@@ -5,22 +5,22 @@ const apiURL = process.env.GATSBY_API_URL
 const DEFAULT_STATE = {
   jwt: null,
   user: {},
-  loggedIn: false 
+  loggedIn: false,
 }
 
 const reducer = (state, action) => {
   switch(action.type){
-    case 'LOGIN': 
+    case 'LOGIN':
       const { jwt, user } = action.payload
       return { ...state, jwt, user, loggedIn: true }
-    case 'LOGOUT': 
+    case 'LOGOUT':
       return { ...state, jwt: null, user: {}, loggedIn: false }
     default:
       return DEFAULT_STATE
   }
 }
 
-const AuthContext = createContext()
+const AuthContext = createContext(DEFAULT_STATE);
 
 const AuthProvider = ({ children }) => (
   <AuthContext.Provider value={useReducer(reducer, DEFAULT_STATE)}>
@@ -36,8 +36,8 @@ export const wrapRootElement = ({ element }) => (
 
 const useAuth = () => {
   const [state, dispatcher] = useContext(AuthContext)
-  const isAuthenticated = state.loggedIn && Object.keys(state.user).length
-  
+  const isAuthenticated = state && state.loggedIn && Object.keys(state.user).length
+
   const login = (credentials) => new Promise(async (resolve, reject) => {
     try{
       const { data: payload } = await axios.post(`${apiURL}/auth/local`, credentials)
@@ -50,7 +50,7 @@ const useAuth = () => {
   const logout = () => {
     dispatcher({ type: 'LOGOUT' })
   }
-  return { state, isAuthenticated, login, logout } 
+  return { state, isAuthenticated, login, logout }
 }
 
 export default useAuth
