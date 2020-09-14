@@ -54,7 +54,10 @@ const RenderModalBody = ({post, review, refresh}) => {
       }
     }).then(res => res.json())
       .catch(error => console.error('Error:', error))
-      .then(response => setRatingLiterature(nextValue));
+      .then(response => {
+        refresh();
+        setRatingLiterature(nextValue)
+      });
 
   }
   const onMusicStarClick = (nextValue, prevValue, name)  => {
