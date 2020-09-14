@@ -12,7 +12,7 @@ const Login = ({ redirect }) => {
     event.preventDefault()
     try{
       await login({ identifier, password })
-      navigate(redirect)
+      await navigate(redirect)
     }catch(e){
       console.log("Error occurred during authentication")
       const { response: { data: { message: [{ messages: [error]}] } } } = e
