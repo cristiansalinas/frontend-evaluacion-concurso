@@ -240,7 +240,7 @@ const PostRow = ({post , refresh}) =>{
             <Modal.Header closeButton>
               <Modal.Title>{post.title}</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body style={{'max-height': 'calc(100vh - 210px)', 'overflow-y': 'auto'}}>
              <RenderModalBody post={post} review={review} refresh={refresh} />
             </Modal.Body>
             <Modal.Footer>
