@@ -18,8 +18,8 @@ const getMusicalReview = (id, post) => {
   }
   return {};
 }
-const RenderModalBody = ({post, review}) => {
-
+const RenderModalBody = ({post, review, refresh}) => {
+  console.log(review);
   const [ratingLiterature, setRatingLiterature] = useState(review.rating || 0);
   const [ratingMusic, setRatingMusic] = useState({
     rating1: review.rating1 || 0,
@@ -81,7 +81,10 @@ const RenderModalBody = ({post, review}) => {
       }
     }).then(res => res.json())
       .catch(error => console.error('Error:', error))
-      .then(response => setRatingMusic({...rating}));
+      .then(response => {
+        refresh();
+        setRatingMusic({...rating})
+      });
   }
 
 
@@ -236,7 +239,7 @@ const PostRow = ({post , refresh}) =>{
               <Modal.Title>{post.title}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-             <RenderModalBody post={post} review={review} />
+             <RenderModalBody post={post} review={review} refresh={refresh} />
             </Modal.Body>
             <Modal.Footer>
               <Button variant="primary" onClick={handleClose}>
