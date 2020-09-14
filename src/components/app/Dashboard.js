@@ -19,7 +19,6 @@ const getMusicalReview = (id, post) => {
   return {};
 }
 const RenderModalBody = ({post, review, refresh}) => {
-  console.log(review);
   const [ratingLiterature, setRatingLiterature] = useState(review.rating || 0);
   const [ratingMusic, setRatingMusic] = useState({
     rating1: review.rating1 || 0,
