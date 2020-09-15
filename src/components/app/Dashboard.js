@@ -104,6 +104,7 @@ const RenderComments = ({post}) => {
 }
 
 const RenderModalBody = ({post, review, refresh}) => {
+  console.log(review);
   const [ratingLiterature, setRatingLiterature] = useState(review.rating || 0);
   const [ratingMusic, setRatingMusic] = useState({
     rating1: review.rating1 || 0,
@@ -153,6 +154,10 @@ const RenderModalBody = ({post, review, refresh}) => {
     let payload = {};
     if(Object.getOwnPropertyNames(review).length > 0){
       path = process.env.GATSBY_API_URL + "/musical-reviews/"+review.id;
+      if(nextValue===prevValue){
+        nextValue = 0;
+        rating[name] = nextValue;
+      }
       payload[name] = nextValue;
       action = 'PUT';
     }else{
@@ -173,7 +178,24 @@ const RenderModalBody = ({post, review, refresh}) => {
         setRatingMusic({...rating})
       });
   }
+  const changePending = () => {
+    review.pending = !review.pending;
+    console.log("pico" + review.pending);
+    let path = process.env.GATSBY_API_URL + "/musical-reviews/"+review.id;
+    console.log(path);
+    fetch(path, {
+      method: 'PUT',
+      body: JSON.stringify({ pending: review.pending }), // data can be `string` or {object}!
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+      .catch(error => console.error('Error:', error))
+      .then(response => {
+        refresh();
+      });
 
+  };
 
   if('musica' === post.category){
     const file = process.env.GATSBY_API_URL+post.music_url;
@@ -275,9 +297,15 @@ const RenderModalBody = ({post, review, refresh}) => {
               />
             </td>
           </tr>
-
           </tbody>
         </table>
+        {Object.getOwnPropertyNames(review).length > 0 && <Form>
+          <Form.Check
+                      checked={review.pending}
+                      onChange={changePending}
+                      type="checkbox"
+                      label="Marcar para revisar mas tarde" />
+        </Form>}
         <RenderComments post={post} />
       </div>
     );
@@ -315,10 +343,13 @@ const PostRow = ({post , refresh}) =>{
     const { state } = useAuth()
     if(post.category === 'literatura') review = getLiteraryReview(state.user.id, post);
     else review = getMusicalReview(state.user.id, post);
+    let desc = Object.getOwnPropertyNames(review).length > 0?'SI': 'NO';
+    if(review.pending) desc = 'REVISAR';
+
     return (
       <tr>
         <td>{post.title}</td>
-        <td>{Object.getOwnPropertyNames(review).length > 0?'SI': 'NO'}</td>
+        <td>{desc}</td>
         <td>
           <Button variant="primary" onClick={handleShow}>
             Evaluar
