@@ -104,7 +104,7 @@ const RenderComments = ({post}) => {
 }
 
 const RenderModalBody = ({post, review, refresh}) => {
-  console.log(review);
+  const [check, setChecked] = useState(review.pending);
   const [ratingLiterature, setRatingLiterature] = useState(review.rating || 0);
   const [ratingMusic, setRatingMusic] = useState({
     rating1: review.rating1 || 0,
@@ -179,19 +179,20 @@ const RenderModalBody = ({post, review, refresh}) => {
       });
   }
   const changePending = () => {
-    review.pending = !review.pending;
-    console.log("pico" + review.pending);
+
     let path = process.env.GATSBY_API_URL + "/musical-reviews/"+review.id;
-    console.log(path);
     fetch(path, {
       method: 'PUT',
-      body: JSON.stringify({ pending: review.pending }), // data can be `string` or {object}!
+      body: JSON.stringify({ pending: !check }), // data can be `string` or {object}!
       headers:{
         'Content-Type': 'application/json'
       }
     }).then(res => res.json())
       .catch(error => console.error('Error:', error))
       .then(response => {
+        console.log("Refresh");
+        const newCheck = check;
+        setChecked(!newCheck);
         refresh();
       });
 
@@ -301,8 +302,8 @@ const RenderModalBody = ({post, review, refresh}) => {
         </table>
         {Object.getOwnPropertyNames(review).length > 0 && <Form>
           <Form.Check
-                      checked={review.pending}
                       onChange={changePending}
+                      checked={check}
                       type="checkbox"
                       label="Marcar para revisar mas tarde" />
         </Form>}
