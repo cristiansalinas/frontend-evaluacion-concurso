@@ -218,7 +218,7 @@ const RenderModalBody = ({post, review, refresh}) => {
           </thead>
           <tbody>
           <tr>
-            <td>Técnica Vocal e Instrumental</td>
+            <td>Técnica Vocal/ Técnica Instrumental</td>
             <td>
               <StarRatingComponent
                 name="rating1"
